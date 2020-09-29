@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace PixelClicker
 {
@@ -20,6 +23,27 @@ namespace PixelClicker
             //Add Python scripting functionality.
 
             //Create script to test the BOYUM addon.
+
+            //1250*470
+        }
+
+        /// <summary>
+        /// Displays the current mouse position to the console.
+        /// </summary>
+        private static void DisplayCurrentMousePosition()
+        {
+            Point p = default;
+            while (true)
+            {
+                Point current = MouseMover.GetMousePosition();
+                if (current != p)
+                {
+                    p = current;
+                    Console.WriteLine(p.ToString());
+                    Console.Clear();
+                    Console.Write(p);
+                }
+            }
         }
     }
 }
