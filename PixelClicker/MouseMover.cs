@@ -20,7 +20,7 @@ namespace PixelClicker
         public static extern bool SetCursorPos(int x, int y);
 
         [DllImport("user32.dll")]
-        public static extern void MouseEvent(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -49,8 +49,8 @@ namespace PixelClicker
         public static void ClickScreen(int x, int y)
         {
             SetCursorPos(x, y);
-            //MouseEvent(MOUSEEVENTF_LEFTDOWN, xpos, ypos, 0, 0);
-            //MouseEvent(MOUSEEVENTF_LEFTUP, xpos, ypos, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
         }
     }
 }
