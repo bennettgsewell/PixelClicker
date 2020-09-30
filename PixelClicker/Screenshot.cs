@@ -80,6 +80,9 @@ namespace PixelClicker
                 return Deserialize(fs);
         }
 
+        /// <summary>
+        /// Compares two screenshots pixel by pixel to make sure they match.
+        /// </summary>
         public static bool operator ==(Screenshot a, Screenshot b)
         {
             //Double check that portions are the same.
@@ -111,6 +114,9 @@ namespace PixelClicker
             return true;
         }
 
+        /// <summary>
+        /// Compares two screenshots pixel by pixel to make sure they don't match.
+        /// </summary>
         public static bool operator !=(Screenshot a, Screenshot b) => !(a == b);
 
         public void Dispose()
