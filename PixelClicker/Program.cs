@@ -145,6 +145,20 @@ namespace PixelClicker
             scope.SetVariable("closeScreen", disposeSS);
             scope.SetVariable("closeScreenshot", disposeSS);
 
+            //Click the screen.
+            scope.SetVariable("click", new Action<int, int>(Mouse.LeftClick));
+            scope.SetVariable("rightClick", new Action<int, int>(Mouse.RightClick));
+
+            //Causes looping beep
+            scope.SetVariable("alarm", new Action(() =>
+            {
+                while(true)
+                {
+                    System.Media.SystemSounds.Asterisk.Play();
+                    Thread.Sleep(1000);
+                }
+            }));
+
             while (consoleRunning)
             {
                 try
