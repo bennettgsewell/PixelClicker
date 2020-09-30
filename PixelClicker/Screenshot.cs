@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace PixelClicker
 {
@@ -16,7 +17,7 @@ namespace PixelClicker
     /// Handles getting pixels from the screen.
     /// </summary>
     [Serializable]
-    class Screenshot : IDisposable
+    public sealed class Screenshot : IDisposable
     {
         /// <summary>
         /// The portion of the screen.
@@ -26,7 +27,7 @@ namespace PixelClicker
         /// <summary>
         /// The bitmap data from the portion.
         /// </summary>
-        private Bitmap m_bitmap;
+        public Bitmap TheBitMap { private set; get; }
 
         /// <summary>
         /// Grabs the pixels from a portion of the screen.
@@ -34,10 +35,15 @@ namespace PixelClicker
         public Screenshot(Rectangle portion)
         {
             Portion = portion;
-            m_bitmap = new Bitmap(Portion.Width, Portion.Height, PixelFormat.Format32bppArgb);
-            using (Graphics g = Graphics.FromImage(m_bitmap))
-                g.CopyFromScreen(Portion.Left, Portion.Top, 0, 0, m_bitmap.Size, CopyPixelOperation.SourceCopy);
+            TheBitMap = new Bitmap(Portion.Width, Portion.Height, PixelFormat.Format32bppArgb);
+            using (Graphics g = Graphics.FromImage(TheBitMap))
+                g.CopyFromScreen(Portion.Left, Portion.Top, 0, 0, TheBitMap.Size, CopyPixelOperation.SourceCopy);
         }
+
+        /// <summary>
+        /// Returns all of the screens connected to this machine.
+        /// </summary>
+        public static Screen[] Screens => Screen.AllScreens;
 
         /// <summary>
         /// Serializes the screenshot to a stream.
@@ -59,7 +65,7 @@ namespace PixelClicker
 
         public void SavePNG(string path)
         {
-            m_bitmap.Save(path, ImageFormat.Png);
+            TheBitMap.Save(path, ImageFormat.Png);
         }
 
         /// <summary>
@@ -91,8 +97,8 @@ namespace PixelClicker
 
             //Check bitmap pixels.
             Bitmap
-                ab = a.m_bitmap,
-                bb = b.m_bitmap;
+                ab = a.TheBitMap,
+                bb = b.TheBitMap;
 
             if (ab.Size != bb.Size || ab.Size != a.Portion.Size)
                 return false;
@@ -121,7 +127,24 @@ namespace PixelClicker
 
         public void Dispose()
         {
-            m_bitmap.Dispose();
+            TheBitMap.Dispose();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode() => Portion.GetHashCode() + TheBitMap.GetHashCode();
     }
 }
