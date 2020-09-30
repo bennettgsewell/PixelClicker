@@ -85,11 +85,24 @@ namespace PixelClicker
                         Console.Error.WriteLine("-file=path_to_file must be set to take a screenshot.");
                         return;
                     }
-                    using(Screenshot ss = new Screenshot(region))
-                        ss.SaveToFile(file);
+                    SaveScreenshot(region, file);
                     break;
             }
         }
+
+        /// <summary>
+        /// Creates a Screenshot of a region and then serializes it to a file.
+        /// </summary>
+        private static void SaveScreenshot(Rectangle region, string file)
+        {
+            using (Screenshot ss = new Screenshot(region))
+                ss.SaveToFile(file);
+        }
+
+        /// <summary>
+        /// Creates a Screenshot of a region and then serializes it to a file.
+        /// </summary>
+        private static void SaveScreenshot(int x, int y, int width, int height, string file) => SaveScreenshot(new Rectangle(x, y, width, height), file);
 
         /// <summary>
         /// Displays a Python console to the user
@@ -101,10 +114,13 @@ namespace PixelClicker
 
             bool consoleRunning = true;
 
-            //Add quit command
+            //Add quit command.
             Action quit = new Action(() => consoleRunning = false);
             scope.SetVariable("exit", quit);
             scope.SetVariable("quit", quit);
+
+            //Add screenshot command.
+            scope.SetVariable("screenshot", new Action<int, int, int, int, string>(SaveScreenshot));
 
             while (consoleRunning)
             {
