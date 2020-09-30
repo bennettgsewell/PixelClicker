@@ -156,6 +156,16 @@ namespace PixelClicker
             scope.SetVariable("closeScreen", disposeSS);
             scope.SetVariable("closeScreenshot", disposeSS);
 
+            //Compare screenshot to region of screen.
+            scope.SetVariable("compareSS", new Func<Screenshot, bool>((ss) =>
+            {
+                Rectangle region = ss.Portion;
+                using(Screenshot screen = new Screenshot(region))
+                {
+                    return ss == screen;
+                }
+            }));
+
             //Click the screen.
             scope.SetVariable("click", new Action<int, int>(Mouse.LeftClick));
             scope.SetVariable("rightClick", new Action<int, int>(Mouse.RightClick));
