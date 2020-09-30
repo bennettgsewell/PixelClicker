@@ -23,7 +23,7 @@ namespace PixelClicker
             //Create script to test the BOYUM addon.
             OptionSet os = new OptionSet()
             {
-                { "m|mouse", v => DisplayCurrentMousePosition() }
+                { "m|mouse", "Displays the current mouse posiiton on the screen.", v => DisplayCurrentMousePosition() }
             };
             os.Parse(args);
         }
