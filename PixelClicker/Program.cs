@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NDesk.Options;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsAPI;
 
 namespace PixelClicker
 {
@@ -27,6 +29,7 @@ namespace PixelClicker
             //1250*470
         }
 
+        /*
         /// <summary>
         /// Displays the current mouse position to the console.
         /// </summary>
@@ -45,5 +48,6 @@ namespace PixelClicker
                 }
             }
         }
+        */
     }
 }
