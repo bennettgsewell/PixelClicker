@@ -26,6 +26,7 @@ namespace PixelClicker
             DisplayMousePos,
             PythonConsole,
             Screenshot,
+            Script
         }
 
         static void Main(string[] args)
@@ -38,6 +39,9 @@ namespace PixelClicker
 
             //Output file location.
             string file = null;
+
+            //Path to script file.
+            string script = null;
 
             //Parse command line arguments.
             OptionSet os = new OptionSet()
@@ -61,7 +65,17 @@ namespace PixelClicker
                             throw new ArgumentException("-file is incorrectly formatted.");
                     }
                 },
+                { "p|python|script=", "Executes a Python script.", (v) =>
+                    {
+                        task = Task.Script;
+                        if(Uri.IsWellFormedUriString(v, UriKind.RelativeOrAbsolute))
+                            script = v;
+                        else
+                            throw new ArgumentException("Script file path is incorrectly formatted.");
+                    }
+                },
             };
+
             try
             {
                 os.Parse(args);
@@ -79,6 +93,10 @@ namespace PixelClicker
                 case Task.PythonConsole:
                     PythonConsole();
                     break;
+                case Task.Script:
+                    PythonScript(script);
+                    break;
+
                 case Task.Screenshot:
                     if (file == null)
                     {
@@ -92,19 +110,12 @@ namespace PixelClicker
         }
 
         /// <summary>
-        /// Displays a Python console to the user
+        /// Creates a Python scode with functions.
         /// </summary>
-        private static void PythonConsole()
+        /// <returns></returns>
+        private static ScriptScope CreatePythonScope(ScriptEngine py)
         {
-            ScriptEngine py = Python.CreateEngine();
             ScriptScope scope = py.CreateScope();
-
-            bool consoleRunning = true;
-
-            //Add quit command.
-            Action quit = new Action(() => consoleRunning = false);
-            scope.SetVariable("exit", quit);
-            scope.SetVariable("quit", quit);
 
             //Take Screenshot command.
             Func<int, int, int, int, Screenshot> screenshot = new Func<int, int, int, int, Screenshot>((x, y, width, height) =>
@@ -123,17 +134,17 @@ namespace PixelClicker
 
             //Open Screenshot command.
             Func<string, Screenshot> loadScreenshot = new Func<string, Screenshot>((path) =>
+            {
+                try
                 {
-                    try
-                    {
-                        return Screenshot.OpenFile(path);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine(ex.Message);
-                        return null;
-                    }
-                });
+                    return Screenshot.OpenFile(path);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex.Message);
+                    return null;
+                }
+            });
             scope.SetVariable("openScreen", loadScreenshot);
             scope.SetVariable("openScreenshot", loadScreenshot);
             scope.SetVariable("openSS", loadScreenshot);
@@ -152,12 +163,40 @@ namespace PixelClicker
             //Causes looping beep
             scope.SetVariable("alarm", new Action(() =>
             {
-                while(true)
+                while (true)
                 {
                     System.Media.SystemSounds.Asterisk.Play();
                     Thread.Sleep(1000);
                 }
             }));
+
+            return scope;
+        }
+
+        /// <summary>
+        /// Executes a Python script.
+        /// </summary>
+        private static void PythonScript(string file)
+        {
+            ScriptEngine py = Python.CreateEngine();
+            ScriptScope scope = CreatePythonScope(py);
+            py.ExecuteFile(file, scope);
+        }
+
+        /// <summary>
+        /// Displays a Python console to the user
+        /// </summary>
+        private static void PythonConsole()
+        {
+            ScriptEngine py = Python.CreateEngine();
+            ScriptScope scope = CreatePythonScope(py);
+
+            bool consoleRunning = true;
+
+            //Add quit command.
+            Action quit = new Action(() => consoleRunning = false);
+            scope.SetVariable("exit", quit);
+            scope.SetVariable("quit", quit);
 
             while (consoleRunning)
             {
