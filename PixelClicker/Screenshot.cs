@@ -57,6 +57,11 @@ namespace PixelClicker
                 Serialize(fs);
         }
 
+        public void SavePNG(string path)
+        {
+            m_bitmap.Save(path, ImageFormat.Png);
+        }
+
         /// <summary>
         /// Deserializes the screenshot from a stream.
         /// </summary>
