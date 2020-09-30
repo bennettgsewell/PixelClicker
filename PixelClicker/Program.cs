@@ -35,7 +35,7 @@ namespace PixelClicker
 
             //Selected region of the screen.
             Rectangle region = default;
-            
+
             //Output file location.
             string file = null;
 
@@ -80,29 +80,16 @@ namespace PixelClicker
                     PythonConsole();
                     break;
                 case Task.Screenshot:
-                    if(file == null)
+                    if (file == null)
                     {
                         Console.Error.WriteLine("-file=path_to_file must be set to take a screenshot.");
                         return;
                     }
-                    SaveScreenshot(region, file);
+                    using (Screenshot ss = new Screenshot(region))
+                        ss.SaveToFile(file);
                     break;
             }
         }
-
-        /// <summary>
-        /// Creates a Screenshot of a region and then serializes it to a file.
-        /// </summary>
-        private static void SaveScreenshot(Rectangle region, string file)
-        {
-            using (Screenshot ss = new Screenshot(region))
-                ss.SaveToFile(file);
-        }
-
-        /// <summary>
-        /// Creates a Screenshot of a region and then serializes it to a file.
-        /// </summary>
-        private static void SaveScreenshot(int x, int y, int width, int height, string file) => SaveScreenshot(new Rectangle(x, y, width, height), file);
 
         /// <summary>
         /// Displays a Python console to the user
@@ -119,8 +106,44 @@ namespace PixelClicker
             scope.SetVariable("exit", quit);
             scope.SetVariable("quit", quit);
 
-            //Add screenshot command.
-            scope.SetVariable("screenshot", new Action<int, int, int, int, string>(SaveScreenshot));
+            //Take Screenshot command.
+            Func<int, int, int, int, Screenshot> screenshot = new Func<int, int, int, int, Screenshot>((x, y, width, height) =>
+            {
+                return new Screenshot(new Rectangle(x, y, width, height));
+            });
+            scope.SetVariable("screen", screenshot);
+            scope.SetVariable("screenshot", screenshot);
+            scope.SetVariable("ss", screenshot);
+
+            //Save screenshot command.
+            Action<Screenshot, string> saveScreenshot = new Action<Screenshot, string>((ss, file) => ss.SaveToFile(file));
+            scope.SetVariable("saveScreen", saveScreenshot);
+            scope.SetVariable("saveScreenshot", saveScreenshot);
+            scope.SetVariable("saveSS", saveScreenshot);
+
+            //Open Screenshot command.
+            Func<string, Screenshot> loadScreenshot = new Func<string, Screenshot>((path) =>
+                {
+                    try
+                    {
+                        return Screenshot.OpenFile(path);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine(ex.Message);
+                        return null;
+                    }
+                });
+            scope.SetVariable("openScreen", loadScreenshot);
+            scope.SetVariable("openScreenshot", loadScreenshot);
+            scope.SetVariable("openSS", loadScreenshot);
+
+            //Close Screenshot, Disposes of the screenshot.
+            Action<Screenshot> disposeSS = new Action<Screenshot>((ss) => ss?.Dispose());
+            scope.SetVariable("disposeSS", disposeSS);
+            scope.SetVariable("closeSS", disposeSS);
+            scope.SetVariable("closeScreen", disposeSS);
+            scope.SetVariable("closeScreenshot", disposeSS);
 
             while (consoleRunning)
             {
